@@ -10,9 +10,8 @@ const cookieParser = require('cookie-parser');
 const imageDownloader = require('image-downloader');
 const multer = require('multer');
 const fs = require('fs');
-
-require('dotenv').config();
 const app = express();
+require('dotenv').config();
 
 const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret = 'fasefraw4r5r3wq45wdfgw34twdfg';
@@ -25,7 +24,10 @@ app.use(cors({
   origin: 'http://127.0.0.1:5173',
 }));
 
-mongoose.connect(process.env.MONGO_URL);
+async function prepare() {
+
+
+}
 
 function getUserDataFromReq(req) {
   return new Promise((resolve, reject) => {
@@ -36,7 +38,9 @@ function getUserDataFromReq(req) {
   });
 }
 
-app.get('/test', (req,res) => {
+app.get('/test', async (req,res) => {
+  await mongoose.connect(process.env.MONGO_URL);
+  await mongoose.disconnect();
   res.json('test ok');
 });
 
@@ -195,4 +199,8 @@ app.get('/bookings', async (req,res) => {
   res.json( await Booking.find({user:userData.id}).populate('place') );
 });
 
-app.listen(4000);
+if (process.env.PORT) {
+  app.listen(process.env.PORT);
+}
+
+module.exports = app;

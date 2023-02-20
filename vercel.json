@@ -1,0 +1,10 @@
+{
+  "buildCommand": "cd client && yarn build",
+  "outputDirectory": "client/build",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api"
+    }
+  ]
+}
