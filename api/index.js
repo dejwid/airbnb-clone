@@ -61,6 +61,7 @@ app.post('/register', async (req,res) => {
 });
 
 app.post('/login', async (req,res) => {
+  await mongoose.connect(process.env.MONGO_URL);
   const {email,password} = req.body;
   const userDoc = await User.findOne({email});
   if (userDoc) {
@@ -79,6 +80,7 @@ app.post('/login', async (req,res) => {
   } else {
     res.json('not found');
   }
+  await mongoose.disconnect();
 });
 
 app.get('/profile', (req,res) => {
