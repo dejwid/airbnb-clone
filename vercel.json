@@ -3,7 +3,9 @@
   "outputDirectory": "client/dist",
   "framework": "vite",
   "functions": {
-    "api/index.js": {}
+    "api/index.js": {
+      "maxDuration": 30
+    }
   },
   "rewrites": [
     {
