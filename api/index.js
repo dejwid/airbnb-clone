@@ -10,6 +10,7 @@ const cookieParser = require('cookie-parser');
 const imageDownloader = require('image-downloader');
 const multer = require('multer');
 const fs = require('fs');
+const S3 = require('aws-sdk/clients/s3');
 const app = express();
 require('dotenv').config();
 
@@ -24,9 +25,30 @@ app.use(cors({
   origin: 'http://127.0.0.1:5173',
 }));
 
-async function prepare() {
-
-
+async function uploadToS3(path, originalFilename, mimetype) {
+  return new Promise((resolve, reject) => {
+    const s3Client = new S3({
+      region: 'us-east-1',
+      credentials: {
+        accessKeyId: process.env.S3_ACCESS_KEY,
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+      },
+    });
+    const parts = originalFilename.split('.');
+    const ext = parts[parts.length - 1];
+    const newFileName = Date.now() + '.' + ext;
+    console.log({path,parts,ext,newFileName});
+    s3Client.upload({
+      Bucket: 'dawid-test-booking',
+      Body: fs.readFileSync(path),
+      ACL: 'public-read',
+      Key: newFileName,
+      ContentType: mimetype,
+    }, (err,data) => {
+      if (err) reject(err);
+      else resolve(data.Location);
+    });
+  });
 }
 
 function getUserDataFromReq(req) {
@@ -39,12 +61,12 @@ function getUserDataFromReq(req) {
 }
 
 app.get('/test', async (req,res) => {
-  await mongoose.connect(process.env.MONGO_URL);
-  await mongoose.disconnect();
+  mongoose.connect(process.env.MONGO_URL);
   res.json('test ok');
 });
 
 app.post('/register', async (req,res) => {
+  mongoose.connect(process.env.MONGO_URL);
   const {name,email,password} = req.body;
 
   try {
@@ -58,10 +80,11 @@ app.post('/register', async (req,res) => {
     res.status(422).json(e);
   }
 
+
 });
 
 app.post('/login', async (req,res) => {
-  await mongoose.connect(process.env.MONGO_URL);
+  mongoose.connect(process.env.MONGO_URL);
   const {email,password} = req.body;
   const userDoc = await User.findOne({email});
   if (userDoc) {
@@ -80,10 +103,10 @@ app.post('/login', async (req,res) => {
   } else {
     res.json('not found');
   }
-  await mongoose.disconnect();
 });
 
-app.get('/profile', (req,res) => {
+app.get('/profile', async (req,res) => {
+  mongoose.connect(process.env.MONGO_URL);
   const {token} = req.cookies;
   if (token) {
     jwt.verify(token, jwtSecret, {}, async (err, userData) => {
@@ -111,21 +134,22 @@ app.post('/upload-by-link', async (req,res) => {
   res.json(newName);
 });
 
-const photosMiddleware = multer({dest:__dirname+'/uploads'});
-app.post('/upload', photosMiddleware.array('photos', 100), (req,res) => {
+const photosMiddleware = multer({dest:'/tmp'});
+app.post('/upload', photosMiddleware.array('photos', 100), async (req,res) => {
   const uploadedFiles = [];
+
   for (let i = 0; i < req.files.length; i++) {
-    const {path,originalname} = req.files[i];
-    const parts = originalname.split('.');
-    const ext = parts[parts.length - 1];
-    const newPath = path + '.' + ext;
-    fs.renameSync(path, newPath);
-    uploadedFiles.push(newPath.replace('uploads/',''));
+    const {path,originalname,mimetype} = req.files[i];
+    console.log(req.files[i]);
+    const location = await uploadToS3(path, originalname, mimetype);
+    uploadedFiles.push(location);
+
   }
   res.json(uploadedFiles);
 });
 
-app.post('/places', (req,res) => {
+app.post('/places', async (req,res) => {
+  mongoose.connect(process.env.MONGO_URL);
   const {token} = req.cookies;
   const {
     title,address,addedPhotos,description,price,
@@ -142,7 +166,8 @@ app.post('/places', (req,res) => {
   });
 });
 
-app.get('/user-places', (req,res) => {
+app.get('/user-places', async (req,res) => {
+  mongoose.connect(process.env.MONGO_URL);
   const {token} = req.cookies;
   jwt.verify(token, jwtSecret, {}, async (err, userData) => {
     const {id} = userData;
@@ -151,11 +176,13 @@ app.get('/user-places', (req,res) => {
 });
 
 app.get('/places/:id', async (req,res) => {
+  mongoose.connect(process.env.MONGO_URL);
   const {id} = req.params;
   res.json(await Place.findById(id));
 });
 
 app.put('/places', async (req,res) => {
+  mongoose.connect(process.env.MONGO_URL);
   const {token} = req.cookies;
   const {
     id, title,address,addedPhotos,description,
@@ -176,10 +203,14 @@ app.put('/places', async (req,res) => {
 });
 
 app.get('/places', async (req,res) => {
+  console.log('connecting');
+  mongoose.connect(process.env.MONGO_URL);
+  console.log('connected');
   res.json( await Place.find() );
 });
 
 app.post('/bookings', async (req, res) => {
+  mongoose.connect(process.env.MONGO_URL);
   const userData = await getUserDataFromReq(req);
   const {
     place,checkIn,checkOut,numberOfGuests,name,phone,price,
@@ -197,12 +228,13 @@ app.post('/bookings', async (req, res) => {
 
 
 app.get('/bookings', async (req,res) => {
+  mongoose.connect(process.env.MONGO_URL);
   const userData = await getUserDataFromReq(req);
   res.json( await Booking.find({user:userData.id}).populate('place') );
 });
 
 if (process.env.PORT) {
-  app.listen(process.env.PORT);
+  app.listen(process.env.PORT, () => console.log('listening on port ' + process.env.PORT));
 }
 
 module.exports = app;
