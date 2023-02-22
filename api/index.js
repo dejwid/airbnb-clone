@@ -233,8 +233,8 @@ app.get('/bookings', async (req,res) => {
   res.json( await Booking.find({user:userData.id}).populate('place') );
 });
 
-if (process.env.PORT) {
-  app.listen(process.env.PORT, () => console.log('listening on port ' + process.env.PORT));
+if (process.env.API_PORT) {
+  app.listen(process.env.PORT, () => console.log('listening on port ' + process.env.API_PORT));
 }
 
 module.exports = app;
