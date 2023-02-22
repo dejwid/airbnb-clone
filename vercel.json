@@ -2,6 +2,9 @@
   "buildCommand": "cd client && yarn build",
   "outputDirectory": "client/dist",
   "framework": "vite",
+  "functions": {
+    "api/index.js": {}
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",
