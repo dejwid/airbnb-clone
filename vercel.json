@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd client && yarn build",
+  "buildCommand": "cd client && yarn",
   "outputDirectory": "client/dist",
   "framework": "vite",
   "rewrites": [
