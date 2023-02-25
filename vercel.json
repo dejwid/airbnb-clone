@@ -2,11 +2,6 @@
   "buildCommand": "cd client && yarn build",
   "outputDirectory": "client/dist",
   "framework": "vite",
-  "functions": {
-    "api/*.js": {
-      "maxDuration": 10
-    }
-  },
   "rewrites": [
     {
       "source": "/api/(.*)",
