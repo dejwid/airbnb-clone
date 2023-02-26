@@ -204,9 +204,11 @@ app.put(API_BASE_URL + '/places', async (req,res) => {
 app.get(API_BASE_URL + '/places', async (req,res) => {
   console.log('connecting');
   mongoose.connect(process.env.MONGO_URL);
-  mongoose.set('strictQuery', true);
+  mongoose.set('strictQuery', false);
   console.log('connected');
-  res.json( await Place.find() );
+  const places = await Place.find();
+  console.log('got places');
+  res.json( places );
 });
 
 app.post('/bookings', async (req, res) => {
