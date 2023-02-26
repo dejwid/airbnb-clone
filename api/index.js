@@ -60,7 +60,7 @@ function getUserDataFromReq(req) {
   });
 }
 
-app.get('/test', async (req,res) => {
+app.get('/api/test', async (req,res) => {
   mongoose.connect(process.env.MONGO_URL);
   res.json('test ok');
 });
