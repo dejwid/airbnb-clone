@@ -182,7 +182,11 @@ app.get('/places/:id', async (req,res) => {
 });
 
 app.put('/places', async (req,res) => {
+
+mongoose.set('strictQuery', true);
+
   mongoose.connect(process.env.MONGO_URL);
+  mongoose.set('strictQuery', true);
   const {token} = req.cookies;
   const {
     id, title,address,addedPhotos,description,
