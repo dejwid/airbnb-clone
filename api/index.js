@@ -182,9 +182,6 @@ app.get('/places/:id', async (req,res) => {
 });
 
 app.put('/places', async (req,res) => {
-
-mongoose.set('strictQuery', true);
-
   mongoose.connect(process.env.MONGO_URL);
   mongoose.set('strictQuery', true);
   const {token} = req.cookies;
@@ -208,6 +205,7 @@ mongoose.set('strictQuery', true);
 
 app.get('/api/places', async (req,res) => {
   console.log('connecting');
+  mongoose.set('strictQuery', true);
   mongoose.connect(process.env.MONGO_URL);
   console.log('connected');
   res.json( await Place.find() );
