@@ -203,8 +203,8 @@ app.put(API_BASE_URL + '/places', async (req,res) => {
 
 app.get(API_BASE_URL + '/places', async (req,res) => {
   console.log('connecting');
-  mongoose.set('strictQuery', false);
   mongoose.connect(process.env.MONGO_URL);
+  mongoose.set('strictQuery', true);
   console.log('connected');
   res.json( await Place.find() );
 });
