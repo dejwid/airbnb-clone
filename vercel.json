@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd client && yarn",
+  "buildCommand": "cd client && yarn && ./node_modules/vite/bin/vite.js build --assetsDir ./",
   "outputDirectory": "client/dist",
   "framework": "vite",
   "rewrites": [
