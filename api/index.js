@@ -10,7 +10,7 @@ const cookieParser = require('cookie-parser');
 const imageDownloader = require('image-downloader');
 const multer = require('multer');
 const fs = require('fs');
-const {S3Client, PutObjectCommand, GetBucketLocationCommand} = require('@aws-sdk/client-s3');
+const {S3Client, PutObjectCommand} = require('@aws-sdk/client-s3');
 const app = express();
 require('dotenv').config();
 
@@ -205,7 +205,7 @@ app.get(API_BASE_URL + '/places', async (req,res) => {
   console.log('connecting');
   mongoose.connect(process.env.MONGO_URL);
   mongoose.set('strictQuery', false);
-  console.log('connected');
+  console.log('connected to:'+process.env.MONGO_URL);
   const places = await Place.find();
   console.log('got places');
   res.json( places );
