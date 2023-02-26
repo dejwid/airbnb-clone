@@ -148,7 +148,7 @@ app.post('/upload', photosMiddleware.array('photos', 100), async (req,res) => {
   res.json(uploadedFiles);
 });
 
-app.post('/places', async (req,res) => {
+app.post('/api/places', async (req,res) => {
   mongoose.connect(process.env.MONGO_URL);
   const {token} = req.cookies;
   const {
@@ -202,7 +202,7 @@ app.put('/places', async (req,res) => {
   });
 });
 
-app.get('/places', async (req,res) => {
+app.get('/api/places', async (req,res) => {
   console.log('connecting');
   mongoose.connect(process.env.MONGO_URL);
   console.log('connected');
