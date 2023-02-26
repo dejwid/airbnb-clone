@@ -204,8 +204,6 @@ app.put(API_BASE_URL + '/places', async (req,res) => {
 app.get(API_BASE_URL + '/places', async (req,res) => {
   console.log('connecting');
   mongoose.connect(process.env.MONGO_URL);
-  mongoose.set('strictQuery', false);
-  console.log('connected to:'+process.env.MONGO_URL);
   const places = await Place.find();
   console.log('got places');
   res.json( places );
