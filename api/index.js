@@ -202,6 +202,35 @@ app.get('/api/places', async (req,res) => {
   res.json( await Place.find() );
 });
 
+app.delete('/api/places/:id', async (req, res) => {
+  const placeId = req.params.id;
+  try {
+      const removedPlace = await Place.deleteOne({ _id: placeId });
+      if (removedPlace.deletedCount === 0) {
+          return res.status(404).json({ message: 'Place not found' });
+      }
+
+      const removedBookings = await Booking.deleteMany({ place: placeId });
+
+      res.status(200).json({ 
+          message: 'Place and associated bookings removed successfully', 
+          place: removedPlace,
+          bookings: removedBookings
+      });
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+});
+
+app.delete('/api/bookings/:id', async (req, res) => {
+  try {
+      const result = await Booking.deleteOne({ _id: req.params.id });
+      res.json(result);
+  } catch (err) {
+      res.status(500).send(err);
+  }
+});
+
 app.post('/api/bookings', async (req, res) => {
   mongoose.connect(process.env.MONGO_URL);
   const userData = await getUserDataFromReq(req);
